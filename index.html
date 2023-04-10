@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Days Tracker</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: url("https://images.unsplash.com/photo-1679126540404-cab45f4b6e85?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1371&q=80");
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .glass-box {
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      label {
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+      input[type="number"] {
+        border: none;
+        background-color: rgba(180, 180, 180, 0.432);
+        border-radius: 5px;
+        padding: 5px 10px;
+        margin-bottom: 10px;
+      }
+      button {
+        border: none;
+        background-color: rgba(180, 180, 180, 0.432);
+        border-radius: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+      input[type="file"] {
+        display: none;
+      }
+
+    .checkbox-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .checkbox-div {
+        color: rgb(0, 0, 0);
+        font-family: system-ui, sans-serif;
+        font-size: 1rem;
+        font-weight: bold;
+        line-height: 1.1;
+        margin-left: 1%;
+        margin-right: 1%;
+        margin-top: 1%;
+        margin-bottom: 1%;
+    }
+
+    .box {
+        display: inline-block;
+        width: 140px;
+        height: 60px;
+        margin: 10px;
+        border-radius: 15px;
+        background-color: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+    }
+
+    .days-container {
+        overflow-x: scroll;
+        width: 100%;
+        text-align: center;
+
+    }
+
+    .days-box {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+  
+    }
+
+    div.scroll {
+        width: 600px;
+        height: 300px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: center;
+        padding: 20px;
+    }
+
+    /* width */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+ 
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: rgba(134, 134, 134, 0.432); 
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(163, 163, 163, 0.432);
+    }
+    </style>
+</head>
+  <body>
+    <div class="glass-box">
+      <h1>Days Tracker</h1>
+      <label for="numDays">Enter number of days:</label>
+      <input type="number" id="numDays" min="1" />
+      <button onclick="exportToTxt()">Export to txt</button>
+      <button onclick="importFromTxt()">Import from txt</button><br /><br />
+      <label>Check off days:</label>
+      <div class="scroll">
+      <div id="checkboxContainer"></div>
+      </div>
+      </div>
+      <input type="file" id="fileInput" />
+    </div>
+
+<script>
+const checkboxContainer = document.getElementById("checkboxContainer");
+const numDaysInput = document.getElementById("numDays");
+
+function createCheckboxes() {
+  const numDays = parseInt(numDaysInput.value);
+  if (!numDays) return;
+  checkboxContainer.innerHTML = "";
+  const numFullRows = Math.floor(numDays / 10);
+  for (let i = 0; i < numFullRows; i++) {
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "checkbox-row";
+    for (let j = 0; j < 10; j++) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "day" + (i * 10 + j + 1);
+      const label = document.createElement("label");
+      label.htmlFor = "day" + (i * 10 + j + 1);
+      label.textContent = "Day " + (i * 10 + j + 1);
+      const checkboxDiv = document.createElement("div");
+      checkboxDiv.className = "checkbox-div";
+      checkboxDiv.appendChild(checkbox);
+      checkboxDiv.appendChild(label);
+      rowDiv.appendChild(checkboxDiv);
+    }
+    checkboxContainer.appendChild(rowDiv);
+  }
+  const remainingBoxes = numDays % 10;
+  if (remainingBoxes > 0) {
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "checkbox-row";
+    for (let i = 0; i < remainingBoxes; i++) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "day" + (numFullRows * 10 + i + 1);
+      const label = document.createElement("label");
+      label.htmlFor = "day" + (numFullRows * 10 + i + 1);
+      label.textContent = "Day " + (numFullRows * 10 + i + 1);
+      const checkboxDiv = document.createElement("div");
+      checkboxDiv.className = "checkbox-div";
+      checkboxDiv.appendChild(checkbox);
+      checkboxDiv.appendChild(label);
+      rowDiv.appendChild(checkboxDiv);
+    }
+    checkboxContainer.appendChild(rowDiv);
+  }
+}
+
+
+
+
+numDaysInput.addEventListener("change", createCheckboxes);
+    function exportToTxt() {
+      const checkedDays = [];
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            checkedDays.push(checkbox.id.slice(3));
+          }
+        });
+        const numDays = numDaysInput.value;
+        const textToSave = `${numDays}\n${checkedDays.join(", ")}`;
+        const hiddenElement = document.createElement("a");
+        hiddenElement.href =
+          "data:text/plain;charset=utf-8," + encodeURIComponent(textToSave);
+        hiddenElement.download = "days.txt";
+        hiddenElement.click();
+      }
+
+function importFromTxt() {
+    const fileInput = document.getElementById("fileInput");
+      fileInput.click();
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+          reader.onload = (event) => {
+            const content = event.target.result.split("\n");
+            const numDays = content[0];
+            numDaysInput.value = numDays;
+            createCheckboxes();
+            const checkedDays = content[1].split(", ");
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach((checkbox) => {
+              checkbox.checked = false;
+              if (checkedDays.includes(checkbox.id.slice(3))) {
+                checkbox.checked = true;
+              }
+            });
+          };
+        reader.readAsText(file);
+    });
+}
+</script>
+  </body>
+</html>
